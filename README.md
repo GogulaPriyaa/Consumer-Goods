@@ -24,7 +24,7 @@ The project gave me an opportunity to apply important SQL concepts like
 
 2.Retrive Data Using Numeric Query ( BETWEEN,IN,ORDER BY,LIMIT,OFFSET)
 
-3.Summery Analytics(MIN,MAX,AVG,GROUP BY)
+3.Summary Analytics(MIN,MAX,AVG,GROUP BY)
 
 4.Caluculated Columns ( CASE, YEAR)
 
@@ -36,4 +36,4 @@ The project gave me an opportunity to apply important SQL concepts like
 
 8.User-Defined SQL functions
 
-8.Window functions(DENSE_RANK) and more to create meaningful business scenarios.
+9.Window functions(DENSE_RANK) and more to create meaningful business scenarios.
