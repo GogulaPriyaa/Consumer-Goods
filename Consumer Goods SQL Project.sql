@@ -123,18 +123,17 @@ WHERE c.customer = "Atliq Exclusive"
 GROUP BY fiscal_month,s.fiscal_year
 ORDER BY s.fiscal_year;
 
-#or
-select concat(monthname(s.date), " ", year(s.date)) as month,
-s.fiscal_year,round(sum(s.sold_quantity*g.gross_price),2)
-as gross_sales_amount
-from fact_sales_monthly s
-join fact_gross_price g
-using (product_code)
-join dim_customer c
-using (customer_code)
-where c.customer = "Atliq Exclusive"
-group by month,s.fiscal_year
-order by s.fiscal_year;
+##Function Query:
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_fiscal_month`(calender_date date ) RETURNS varchar(10) 
+    DETERMINISTIC
+BEGIN
+declare fiscal_month varchar(10);
+set fiscal_month = monthname(date_add(calender_date ,interval 4 month));
+	
+RETURN fiscal_month;
+END
+
+
 
 /*8. In which quarter of 2020, got the maximum total_sold_quantity? 
 The final output contains these fields sorted by the total_sold_quantity 
@@ -147,20 +146,21 @@ FROM fact_sales_monthly
 WHERE fiscal_year = 2020
 GROUP BY quarter;
 
-#or
-
-   
-SELECT 
-CASE
-    WHEN date BETWEEN '2019-09-01' AND '2019-11-01' then CONCAT('[',1,'] ',MONTHNAME(date))  
-    WHEN date BETWEEN '2019-12-01' AND '2020-02-01' then CONCAT('[',2,'] ',MONTHNAME(date))
-    WHEN date BETWEEN '2020-03-01' AND '2020-05-01' then CONCAT('[',3,'] ',MONTHNAME(date))
-    WHEN date BETWEEN '2020-06-01' AND '2020-08-01' then CONCAT('[',4,'] ',MONTHNAME(date))
-    END AS Quarters,
-    SUM(sold_quantity) AS total_sold_quantity
-FROM fact_sales_monthly
-WHERE fiscal_year = 2020
-GROUP BY Quarters;
+##Function Query
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_fiscal_quarter`(calender_date date) RETURNS char(2) CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+	declare m tinyint;
+    declare qtr char(2);
+    set m= month(calender_date);
+		case
+			when m in (9,10,11) then set qtr ="Q1";
+            when m in (12,1,2) then set qtr ="Q2";
+            when m in (3,4,5) then set qtr ="Q3";
+			else set qtr = "Q4";
+        end case;
+ return qtr;       
+END
 
 /*9. Which channel helped to bring more gross sales in the fiscal year 2021 and the percentage of contribution? 
 The final output contains these fields, 
@@ -187,6 +187,15 @@ gross_sales_mln,ROUND(gross_sales_mln*100/total,2) AS percentage
 FROM cte,cte1
 ORDER BY percentage DESC;
 
+##Function Query:
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_fiscal_year`(calender_date date ) RETURNS int
+    DETERMINISTIC
+BEGIN
+declare fiscal_year year;
+set fiscal_year = year(date_add(calender_date ,interval 4 month));
+
+RETURN fiscal_year;
+END
 
 /*10. Get the Top 3 products in each division that have a high total_sold_quantity in the fiscal_year 2021? 
 The final output contains these fields, 
